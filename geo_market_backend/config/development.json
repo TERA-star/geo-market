@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb://localhost:27017/geo_market",
+  "jwtSecret": "dev-secret-token-key"
+}

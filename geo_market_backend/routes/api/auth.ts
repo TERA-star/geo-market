@@ -1,33 +1,23 @@
 import express from 'express';
-const router = express.Router();
 import bcrypt from 'bcryptjs';
-import auth from '../../middleware/auth';
 import jwt from 'jsonwebtoken';
 import config from 'config';
 import { check, validationResult } from 'express-validator';
+import auth from '../../middleware/auth';
 
 import User from '../../models/User';
 
-// @route    GET api/auth
-// @desc     Get user by token
-// @access   Private
-router.get('/', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select('-password');
-        res.json(user);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-});
+const router = express.Router();
 
 // @route    POST api/auth
 // @desc     Authenticate user & get token
 // @access   Public
 router.post(
     '/',
-    check('email', 'Please include a valid email').isEmail(),
-    check('password', 'Password is required').exists(),
+    [
+        check('email', 'Please include a valid email').isEmail(),
+        check('password', 'Password is required').exists()
+    ],
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -42,7 +32,7 @@ router.post(
             if (!user) {
                 return res
                     .status(400)
-                    .json({ errors: [{ msg: 'Invalid Credentials' }] });
+                    .json({ errors: [{ msg: 'Invalid credentials' }] });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
@@ -50,7 +40,7 @@ router.post(
             if (!isMatch) {
                 return res
                     .status(400)
-                    .json({ errors: [{ msg: 'Invalid Credentials' }] });
+                    .json({ errors: [{ msg: 'Invalid credentials' }] });
             }
 
             const payload = {
@@ -65,7 +55,14 @@ router.post(
                 { expiresIn: '5 days' },
                 (err, token) => {
                     if (err) throw err;
-                    res.json({ token });
+                    res.json({
+                        token,
+                        user: {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email
+                        }
+                    });
                 }
             );
         } catch (err) {
@@ -74,5 +71,18 @@ router.post(
         }
     }
 );
+
+// @route    GET api/auth
+// @desc     Get user by token
+// @access   Private
+router.get('/', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 
 export default router;

@@ -1,13 +1,17 @@
+"use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterFormData, registerSchema } from "@/schemas/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 
-export function RegisterForm() {
+export function Register() {
   const { login } = useAuth();
   const router = useRouter();
+  const [error, setError] = useState<string>("");
 
   const {
     register,
@@ -18,21 +22,38 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
+    console.log("data >>>", data);
     try {
-      // Here you would typically make an API call to your backend
-      const response = await fetch("/api/auth/register", {
+      setError("");
+      const response = await fetch("http://localhost:5000/api/users/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
       });
 
-      if (!response.ok) throw new Error("Registration failed");
+      const responseData = await response.json();
 
-      const { user, token } = await response.json();
-      login(user, token);
-      router.push("/dashboard");
+      if (!response.ok) {
+        throw new Error(responseData.errors?.[0]?.msg || "Registration failed");
+      }
+
+      // If registration is successful, login with the received token
+      if (responseData.token) {
+        login({ email: data.email, name: data.name }, responseData.token);
+        router.push("/dashboard");
+      } else {
+        throw new Error("No token received");
+      }
     } catch (error) {
       console.error("Registration error:", error);
+      setError(error instanceof Error ? error.message : "Registration failed");
     }
   };
 
@@ -42,7 +63,20 @@ export function RegisterForm() {
         <h2 className="text-3xl font-bold tracking-tight text-gray-900">
           Create your account
         </h2>
+        <p className="mt-2 text-sm text-gray-600">
+          Join the Georgian Marketplace community
+        </p>
       </div>
+
+      {error && (
+        <div className="rounded-md bg-red-50 p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4 rounded-md">
@@ -57,7 +91,8 @@ export function RegisterForm() {
               id="name"
               type="text"
               {...register("name")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 text-black"
+              placeholder="John Doe"
             />
             {errors.name && (
               <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -75,7 +110,8 @@ export function RegisterForm() {
               id="email"
               type="email"
               {...register("email")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 text-black"
+              placeholder="you@example.com"
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">
@@ -95,7 +131,8 @@ export function RegisterForm() {
               id="password"
               type="password"
               {...register("password")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 text-black"
+              placeholder="••••••••"
             />
             {errors.password && (
               <p className="mt-1 text-sm text-red-600">
@@ -115,7 +152,8 @@ export function RegisterForm() {
               id="confirmPassword"
               type="password"
               {...register("confirmPassword")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 text-black"
+              placeholder="••••••••"
             />
             {errors.confirmPassword && (
               <p className="mt-1 text-sm text-red-600">
@@ -129,9 +167,35 @@ export function RegisterForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="flex w-full justify-center rounded-md bg-gradient-to-r from-indigo-500 to-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
           >
-            {isSubmitting ? "Creating account..." : "Create account"}
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Creating account...
+              </div>
+            ) : (
+              "Create account"
+            )}
           </button>
         </div>
 
