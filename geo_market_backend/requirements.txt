@@ -1,2 +1,0 @@
-Django>=5.2
-django-cors-headers>=4.3.1

@@ -1,0 +1,31 @@
+{
+  "name": "geo_market_backend",
+  "version": "0.0.2",
+  "description": "this is for geo market",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server"
+  },
+  "author": "devid",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "config": "^4.1.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "gravatar": "^1.8.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
+    "nodemon": "^3.1.10",
+    "normalize-url": "^8.1.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "path": "^0.12.7",
+    "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2"
+  }
+}
