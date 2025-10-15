@@ -1,0 +1,33 @@
+{
+  "landing": {
+    "title": "Your Georgian Marketplace",
+    "description": "Discover authentic Georgian products and connect with local sellers. Your one-stop destination for everything Georgian.",
+    "getStarted": "Get started",
+    "learnMore": "Learn more",
+    "features": {
+      "title": "Everything you need to succeed",
+      "description": "GeoMarket provides all the tools you need to start selling and buying authentic Georgian products.",
+      "marketplace": {
+        "title": "Vibrant Marketplace",
+        "description": "Connect with buyers and sellers from all over Georgia"
+      },
+      "secure": {
+        "title": "Secure Transactions",
+        "description": "Safe and secure payment processing for all transactions"
+      },
+      "mobile": {
+        "title": "Mobile First",
+        "description": "Fully responsive design that works on all devices"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome to your Dashboard",
+    "description": "Manage your products, view orders, and track your performance all in one place.",
+    "stats": {
+      "products": "Total Products",
+      "orders": "Total Orders",
+      "revenue": "Revenue"
+    }
+  }
+}
